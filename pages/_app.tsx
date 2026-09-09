@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { Geist_Mono } from 'next/font/google';
 import '../styles/globals.css';
 import '../styles/branding.css';
+import '../styles/color-studio.css';
 
 const geistMono = Geist_Mono({
   subsets: ['latin'],
