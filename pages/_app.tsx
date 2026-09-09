@@ -1,12 +1,7 @@
 import type { AppProps } from 'next/app';
 import Head from 'next/head';
-import { Gabarito, Geist_Mono } from 'next/font/google';
+import { Geist_Mono } from 'next/font/google';
 import '../styles/globals.css';
-
-const gabarito = Gabarito({
-  subsets: ['latin'],
-  variable: '--font-sans',
-});
 
 const geistMono = Geist_Mono({
   subsets: ['latin'],
@@ -15,10 +10,10 @@ const geistMono = Geist_Mono({
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <div className={`${gabarito.variable} ${geistMono.variable}`}>
+    <div className={geistMono.variable}>
       <Head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="theme-color" content="#f4f1e8" />
+        <meta name="theme-color" content="#f3eddc" />
         <link rel="icon" href="/favicon.svg" />
       </Head>
       <Component {...pageProps} />

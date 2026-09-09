@@ -25,6 +25,7 @@ import {
 type ToolId =
   | 'color-converter'
   | 'color-picker'
+  | 'palette'
   | 'gradient'
   | 'contrast'
   | 'json'
@@ -34,6 +35,7 @@ type ToolId =
   | 'slug'
   | 'case'
   | 'timestamp'
+  | 'timezone'
   | 'password'
   | 'text-stats'
   | 'jwt'
@@ -52,6 +54,7 @@ type Tool = {
 const tools: Tool[] = [
   { id: 'color-converter', name: 'Color converter', description: 'HEX, RGB & HSL', category: 'Design', icon: ArrowRightLeft },
   { id: 'color-picker', name: 'Color picker', description: 'Pick and copy colors', category: 'Design', icon: PaintBucket },
+  { id: 'palette', name: 'Color palettes', description: 'Generate & browse palettes', category: 'Design', icon: Palette },
   { id: 'gradient', name: 'Gradient generator', description: 'CSS gradients', category: 'Design', icon: Wand2 },
   { id: 'contrast', name: 'Contrast checker', description: 'WCAG ratio', category: 'Design', icon: Gauge },
   { id: 'json', name: 'JSON formatter', description: 'Pretty print & minify', category: 'Dev', icon: Braces },
@@ -61,6 +64,7 @@ const tools: Tool[] = [
   { id: 'slug', name: 'Slug generator', description: 'SEO-friendly slugs', category: 'Text', icon: Hash },
   { id: 'case', name: 'Case converter', description: 'camel, snake, kebab…', category: 'Text', icon: CaseSensitive },
   { id: 'timestamp', name: 'Timestamp converter', description: 'Unix ↔ date', category: 'Dev', icon: Clock3 },
+  { id: 'timezone', name: 'Timezone converter', description: 'Convert times between zones', category: 'Dev', icon: Clock3 },
   { id: 'password', name: 'Password generator', description: 'Strong random passwords', category: 'Security', icon: KeyRound },
   { id: 'text-stats', name: 'Text analyzer', description: 'Words, chars & reading time', category: 'Text', icon: Type },
   { id: 'jwt', name: 'JWT decoder', description: 'Inspect JWT payloads', category: 'Security', icon: ShieldCheck },
@@ -70,6 +74,7 @@ const tools: Tool[] = [
 const toolCopy: Record<ToolId, { title: string; description: string }> = {
   'color-converter': { title: 'Color converter', description: 'Convert a color between HEX, RGB and HSL without leaving the browser.' },
   'color-picker': { title: 'Color picker', description: 'Choose a color visually and copy its HEX, RGB or HSL value.' },
+  palette: { title: 'Color palettes', description: 'Build a five-color palette from any seed color or start from a curated preset.' },
   gradient: { title: 'Gradient generator', description: 'Build polished linear gradients and copy production-ready CSS.' },
   contrast: { title: 'Contrast checker', description: 'Check foreground and background contrast against WCAG thresholds.' },
   json: { title: 'JSON formatter', description: 'Format, validate or minify JSON instantly.' },
@@ -79,6 +84,7 @@ const toolCopy: Record<ToolId, { title: string; description: string }> = {
   slug: { title: 'Slug generator', description: 'Turn any title into a clean, shareable and SEO-friendly slug.' },
   case: { title: 'Case converter', description: 'Convert text between camelCase, PascalCase, snake_case and kebab-case.' },
   timestamp: { title: 'Timestamp converter', description: 'Translate Unix timestamps into readable local and UTC dates.' },
+  timezone: { title: 'Timezone converter', description: 'Convert a wall-clock date and time from one IANA timezone into another.' },
   password: { title: 'Password generator', description: 'Generate strong passwords with fine-grained character controls.' },
   'text-stats': { title: 'Text analyzer', description: 'Measure words, characters, sentences and estimated reading time.' },
   jwt: { title: 'JWT decoder', description: 'Inspect JWT header and payload locally. No token ever leaves your browser.' },
@@ -121,6 +127,16 @@ function rgbToHsl(r: number, g: number, b: number) {
     h /= 6;
   }
   return { h: Math.round(h * 360), s: Math.round(s * 100), l: Math.round(l * 100) };
+}
+
+function hslToHex(h: number, s: number, l: number) {
+  s /= 100; l /= 100;
+  const c = (1 - Math.abs(2 * l - 1)) * s;
+  const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
+  const m = l - c / 2;
+  let r = 0, g = 0, b = 0;
+  if (h < 60) [r,g,b] = [c,x,0]; else if (h < 120) [r,g,b] = [x,c,0]; else if (h < 180) [r,g,b] = [0,c,x]; else if (h < 240) [r,g,b] = [0,x,c]; else if (h < 300) [r,g,b] = [x,0,c]; else [r,g,b] = [c,0,x];
+  return rgbToHex(Math.round((r+m)*255), Math.round((g+m)*255), Math.round((b+m)*255));
 }
 
 function luminance(hex: string) {
@@ -170,8 +186,37 @@ function ColorConverter() {
 
 function ColorPicker() {
   const [color, setColor] = useState('#62E7FF');
-  const rgb = hexToRgb(color)!; const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
-  return <div className="grid-2"><div className="card"><div className="field"><label>Pick a color</label><input type="color" value={color} onChange={(e) => setColor(e.target.value)} style={{height:110,padding:8}} /></div><div className="field"><label>HEX</label><input value={color.toUpperCase()} onChange={(e) => setColor(e.target.value)} /></div></div><div className="card"><div className="swatch" style={{background:color}}><span className="swatch-code">{color.toUpperCase()}</span></div><div className="section-label">Values</div><ToolOutput value={color.toUpperCase()} /><div style={{height:8}} /><ToolOutput value={`rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`} /><div style={{height:8}} /><ToolOutput value={`hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`} /></div></div>;
+  const rgb = hexToRgb(color);
+  const hsl = rgb ? rgbToHsl(rgb.r, rgb.g, rgb.b) : null;
+  return <div className="grid-2"><div className="card"><div className="field"><label>Pick a color</label><input type="color" value={rgb ? color : '#62E7FF'} onChange={(e) => setColor(e.target.value)} style={{height:110,padding:8}} /></div><div className="field"><label>HEX</label><input value={color.toUpperCase()} onChange={(e) => setColor(e.target.value)} /></div></div><div className="card">{rgb && hsl ? <><div className="swatch" style={{background:color}}><span className="swatch-code">{color.toUpperCase()}</span></div><div className="section-label">Values</div><ToolOutput value={color.toUpperCase()} /><div style={{height:8}} /><ToolOutput value={`rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`} /><div style={{height:8}} /><ToolOutput value={`hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`} /></> : <div className="empty-state">Enter a valid HEX color.</div>}</div></div>;
+}
+
+const palettePresets = [
+  { name:'Sage & Clay', colors:['#1F3A2E','#6D8B74','#D5C7A1','#C17C5B','#F3EDDC'] },
+  { name:'Night Shift', colors:['#111827','#293241','#3D5A80','#98C1D9','#E0FBFC'] },
+  { name:'Soft Launch', colors:['#2E294E','#541388','#F1E9DA','#FFD400','#D90368'] },
+  { name:'Warm Studio', colors:['#3B2F2F','#8A5A44','#C58C6D','#E6C7A8','#F7EFE5'] },
+  { name:'Quiet Ocean', colors:['#16324F','#184E77','#52B69A','#B5E48C','#D9ED92'] },
+  { name:'Paper & Ink', colors:['#17211B','#4F5D4B','#A89F84','#D5CBB5','#F3EDDC'] },
+];
+
+function buildPalette(seed: string) {
+  const rgb=hexToRgb(seed); if(!rgb) return palettePresets[0].colors;
+  const hsl=rgbToHsl(rgb.r,rgb.g,rgb.b);
+  const hue=(n:number)=>(hsl.h+n+360)%360;
+  return [
+    hslToHex(hue(-18),Math.min(82,hsl.s+16),Math.max(18,hsl.l-30)),
+    hslToHex(hue(-8),Math.min(76,hsl.s+8),Math.max(28,hsl.l-14)),
+    hslToHex(hsl.h,Math.max(28,hsl.s),Math.min(72,Math.max(38,hsl.l))),
+    hslToHex(hue(18),Math.max(34,hsl.s-8),Math.min(78,hsl.l+18)),
+    hslToHex(hue(34),Math.max(22,hsl.s-18),Math.min(92,hsl.l+34)),
+  ];
+}
+
+function ColorPalettes() {
+  const [seed,setSeed]=useState('#B96F27');
+  const [palette,setPalette]=useState(()=>buildPalette('#B96F27'));
+  return <div className="grid-2"><div className="card"><div className="field"><label>Seed color</label><input type="color" value={seed} onChange={(e)=>{setSeed(e.target.value);setPalette(buildPalette(e.target.value))}} style={{height:72,padding:7}} /></div><div className="field"><label>HEX</label><input value={seed.toUpperCase()} onChange={(e)=>{setSeed(e.target.value);if(hexToRgb(e.target.value))setPalette(buildPalette(e.target.value))}} /></div><div className="actions"><button className="primary-btn" onClick={()=>setPalette(buildPalette(seed))}>Generate palette</button><button className="ghost-btn" onClick={()=>copy(palette.join(', '))}>Copy all HEX</button></div><div className="section-label">Curated palettes</div><div className="palette-presets">{palettePresets.map((preset)=><button key={preset.name} className="palette-preset" onClick={()=>{setPalette(preset.colors);setSeed(preset.colors[2])}}><div className="palette-strip">{preset.colors.map((c)=><span key={c} style={{background:c}} />)}</div><span>{preset.name}</span></button>)}</div></div><div className="card"><div className="palette-grid">{palette.map((color)=><button key={color} className="palette-swatch" style={{background:color,color:luminance(color)>.45?'#183424':'#f3eddc'}} onClick={()=>copy(color)} title="Copy color"><span className="palette-code">{color}</span></button>)}</div><div className="section-label">CSS variables</div><ToolOutput value={palette.map((c,i)=>`--color-${i+1}: ${c};`).join('\n')} /></div></div>;
 }
 
 function GradientGenerator() {
@@ -187,9 +232,9 @@ function ContrastChecker() {
 }
 
 function JsonFormatter() {
-  const [input,setInput]=useState('{"name":"IndieKit","shipFast":true,"tools":15}'); const [output,setOutput]=useState(''); const [error,setError]=useState('');
+  const [input,setInput]=useState('{"name":"IndieKit","shipFast":true,"tools":17}'); const [output,setOutput]=useState(''); const [error,setError]=useState('');
   const run=(minify=false)=>{try{const parsed=JSON.parse(input);setOutput(JSON.stringify(parsed,null,minify?0:2));setError('')}catch(e){setError(e instanceof Error?e.message:'Invalid JSON');setOutput('')}};
-  return <div className="grid-2"><div className="card"><div className="field"><label>Input</label><textarea value={input} onChange={(e)=>setInput(e.target.value)} /></div><div className="actions"><button className="primary-btn" onClick={()=>run(false)}>Format</button><button className="ghost-btn" onClick={()=>run(true)}>Minify</button></div>{error&&<p style={{color:'#ff9f9f'}}>{error}</p>}</div><div className="card"><label className="section-label">Output</label><ToolOutput value={output} /></div></div>;
+  return <div className="grid-2"><div className="card"><div className="field"><label>Input</label><textarea value={input} onChange={(e)=>setInput(e.target.value)} /></div><div className="actions"><button className="primary-btn" onClick={()=>run(false)}>Format</button><button className="ghost-btn" onClick={()=>run(true)}>Minify</button></div>{error&&<p style={{color:'#9d4b43'}}>{error}</p>}</div><div className="card"><label className="section-label">Output</label><ToolOutput value={output} /></div></div>;
 }
 
 function Base64Tool() {
@@ -209,7 +254,7 @@ function SimpleTransform({input,setInput,output,primaryLabel,secondaryLabel,onPr
 }
 
 function UuidGenerator() {
-  const [count,setCount]=useState(5); const [values,setValues]=useState<string[]>(()=>Array.from({length:5},randomUuid));
+  const [count,setCount]=useState(5); const [values,setValues]=useState<string[]>([]);
   const generate=()=>setValues(Array.from({length:Math.max(1,Math.min(50,count))},randomUuid));
   return <div className="grid-2"><div className="card"><div className="field"><label>How many UUIDs?</label><input type="number" min="1" max="50" value={count} onChange={(e)=>setCount(+e.target.value)} /></div><button className="primary-btn" onClick={generate}>Generate UUIDs</button></div><div className="card"><ToolOutput value={values.join('\n')} /></div></div>;
 }
@@ -227,8 +272,42 @@ function CaseConverter() {
 }
 
 function TimestampConverter() {
-  const [timestamp,setTimestamp]=useState(()=>Math.floor(Date.now()/1000).toString()); const numeric=Number(timestamp); const ms=timestamp.length<=10?numeric*1000:numeric; const date=Number.isFinite(ms)?new Date(ms):null; const valid=date&&!isNaN(date.getTime());
-  return <div className="grid-2"><div className="card"><div className="field"><label>Unix timestamp (seconds or milliseconds)</label><input value={timestamp} onChange={(e)=>setTimestamp(e.target.value)} /></div><button className="ghost-btn" onClick={()=>setTimestamp(Math.floor(Date.now()/1000).toString())}>Use current time</button></div><div className="card">{valid?<><div className="section-label">Local</div><ToolOutput value={date.toLocaleString()} /><div className="section-label">UTC / ISO</div><ToolOutput value={date.toISOString()} /></>:<div className="empty-state">Enter a valid timestamp.</div>}</div></div>;
+  const [timestamp,setTimestamp]=useState(''); const numeric=Number(timestamp); const ms=timestamp.length<=10?numeric*1000:numeric; const date=timestamp&&Number.isFinite(ms)?new Date(ms):null; const valid=date&&!isNaN(date.getTime());
+  return <div className="grid-2"><div className="card"><div className="field"><label>Unix timestamp (seconds or milliseconds)</label><input value={timestamp} onChange={(e)=>setTimestamp(e.target.value)} /></div><button className="ghost-btn" onClick={()=>setTimestamp(Math.floor(Date.now()/1000).toString())}>Use current time</button></div><div className="card">{valid?<><div className="section-label">Local</div><ToolOutput value={date.toLocaleString()} /><div className="section-label">UTC / ISO</div><ToolOutput value={date.toISOString()} /></>:<div className="empty-state">Enter a timestamp or use current time.</div>}</div></div>;
+}
+
+const timezones = [
+  'UTC','Europe/London','Europe/Paris','Europe/Berlin','Europe/Madrid','Europe/Rome','Africa/Casablanca','Africa/Cairo','Africa/Johannesburg','Asia/Dubai','Asia/Riyadh','Asia/Kolkata','Asia/Singapore','Asia/Hong_Kong','Asia/Tokyo','Asia/Seoul','Australia/Sydney','Pacific/Auckland','America/New_York','America/Chicago','America/Denver','America/Los_Angeles','America/Toronto','America/Vancouver','America/Sao_Paulo','America/Mexico_City'
+];
+
+function zonedParts(date: Date, timeZone: string) {
+  const parts=new Intl.DateTimeFormat('en-CA',{timeZone,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'}).formatToParts(date);
+  const get=(type:string)=>Number(parts.find(p=>p.type===type)?.value||0);
+  return {year:get('year'),month:get('month'),day:get('day'),hour:get('hour'),minute:get('minute'),second:get('second')};
+}
+
+function localInZoneToDate(value: string, timeZone: string) {
+  const match=value.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/); if(!match) return null;
+  const [,y,mo,d,h,mi]=match; const target=Date.UTC(+y,+mo-1,+d,+h,+mi,0);
+  let guess=new Date(target);
+  for(let i=0;i<3;i++){
+    const p=zonedParts(guess,timeZone);
+    const represented=Date.UTC(p.year,p.month-1,p.day,p.hour,p.minute,p.second);
+    guess=new Date(guess.getTime()+(target-represented));
+  }
+  return guess;
+}
+
+function formatZone(date: Date, timeZone: string) {
+  return new Intl.DateTimeFormat('en-GB',{timeZone,dateStyle:'full',timeStyle:'long',hour12:false}).format(date);
+}
+
+function TimezoneConverter() {
+  const [value,setValue]=useState('2026-09-09T12:00');
+  const [from,setFrom]=useState('Europe/Paris');
+  const [to,setTo]=useState('America/New_York');
+  const date=useMemo(()=>localInZoneToDate(value,from),[value,from]);
+  return <div className="grid-2"><div className="card"><div className="field"><label>Date & time</label><input type="datetime-local" value={value} onChange={(e)=>setValue(e.target.value)} /></div><div className="field"><label>From timezone</label><select value={from} onChange={(e)=>setFrom(e.target.value)}>{timezones.map(t=><option key={t}>{t}</option>)}</select></div><div className="field"><label>To timezone</label><select value={to} onChange={(e)=>setTo(e.target.value)}>{timezones.map(t=><option key={t}>{t}</option>)}</select></div><div className="actions"><button className="ghost-btn" onClick={()=>{const now=new Date();const p=zonedParts(now,from);setValue(`${p.year}-${String(p.month).padStart(2,'0')}-${String(p.day).padStart(2,'0')}T${String(p.hour).padStart(2,'0')}:${String(p.minute).padStart(2,'0')}`)}}>Use current time</button><button className="ghost-btn" onClick={()=>{setFrom(to);setTo(from)}}>Swap zones</button></div></div><div className="card">{date?<><div className="tz-result"><div className="tz-card"><span>{from}</span><strong>{formatZone(date,from)}</strong><span>Source time</span></div><div className="tz-card"><span>{to}</span><strong>{formatZone(date,to)}</strong><span>Converted time</span></div></div><div className="section-label">ISO instant</div><ToolOutput value={date.toISOString()} /></>:<div className="empty-state">Choose a valid date and time.</div>}</div></div>;
 }
 
 function PasswordGenerator() {
@@ -244,8 +323,8 @@ function TextStats() {
 
 function JwtDecoder() {
   const [input,setInput]=useState('');
-  const decoded=useMemo(()=>{if(!input)return null;try{const [h,p]=input.split('.');const decode=(s:string)=>JSON.parse(decodeURIComponent(escape(atob(s.replace(/-/g,'+').replace(/_/g,'/')))));return {header:decode(h),payload:decode(p)}}catch{return null}},[input]);
-  return <div className="grid-2"><div className="card"><div className="field"><label>JWT</label><textarea value={input} placeholder="eyJhbGciOi..." onChange={(e)=>setInput(e.target.value)} /></div><p style={{color:'#8f97a8',fontSize:12}}>Decoded locally in your browser. Signature verification is intentionally not performed.</p></div><div className="card">{decoded?<><div className="section-label">Header</div><ToolOutput value={JSON.stringify(decoded.header,null,2)} /><div className="section-label">Payload</div><ToolOutput value={JSON.stringify(decoded.payload,null,2)} /></>:<div className="empty-state">Paste a valid JWT to inspect it.</div>}</div></div>;
+  const decoded=useMemo(()=>{if(!input)return null;try{const [h,p]=input.split('.');const decode=(s:string)=>{const normalized=s.replace(/-/g,'+').replace(/_/g,'/').padEnd(Math.ceil(s.length/4)*4,'=');return JSON.parse(decodeURIComponent(escape(atob(normalized))))};return {header:decode(h),payload:decode(p)}}catch{return null}},[input]);
+  return <div className="grid-2"><div className="card"><div className="field"><label>JWT</label><textarea value={input} placeholder="eyJhbGciOi..." onChange={(e)=>setInput(e.target.value)} /></div><p style={{color:'#766e5c',fontSize:12}}>Decoded locally in your browser. Signature verification is intentionally not performed.</p></div><div className="card">{decoded?<><div className="section-label">Header</div><ToolOutput value={JSON.stringify(decoded.header,null,2)} /><div className="section-label">Payload</div><ToolOutput value={JSON.stringify(decoded.payload,null,2)} /></>:<div className="empty-state">Paste a valid JWT to inspect it.</div>}</div></div>;
 }
 
 const loremSentences=[
@@ -268,6 +347,7 @@ function ToolRenderer({ id }: { id: ToolId }) {
   switch(id){
     case 'color-converter': return <ColorConverter/>;
     case 'color-picker': return <ColorPicker/>;
+    case 'palette': return <ColorPalettes/>;
     case 'gradient': return <GradientGenerator/>;
     case 'contrast': return <ContrastChecker/>;
     case 'json': return <JsonFormatter/>;
@@ -277,6 +357,7 @@ function ToolRenderer({ id }: { id: ToolId }) {
     case 'slug': return <SlugGenerator/>;
     case 'case': return <CaseConverter/>;
     case 'timestamp': return <TimestampConverter/>;
+    case 'timezone': return <TimezoneConverter/>;
     case 'password': return <PasswordGenerator/>;
     case 'text-stats': return <TextStats/>;
     case 'jwt': return <JwtDecoder/>;
@@ -292,7 +373,7 @@ export default function Home() {
   const active=tools.find((tool)=>tool.id===activeTool)!;
   const ActiveIcon=active.icon;
   return <>
-    <Head><title>IndieKit — Tiny tools for people who ship</title><meta name="description" content="A fast, private toolbox for indie hackers: color tools, JSON formatting, UUIDs, text utilities, security helpers and more." /></Head>
+    <Head><title>IndieKit — Tiny tools for people who ship</title><meta name="description" content="A fast, private toolbox for indie hackers: color tools, JSON formatting, UUIDs, timezone conversion, text utilities, security helpers and more." /></Head>
     <main className="app-shell">
       <header className="topbar"><div className="brand"><div className="brand-mark">IK</div><div><div>IndieKit</div><div className="brand-sub">Tiny tools. Serious momentum.</div></div></div><div className="nav-actions"><button className="ghost-btn" onClick={()=>document.getElementById('tools')?.scrollIntoView()}>Explore tools</button><button className="primary-btn" onClick={()=>setActiveTool('json')}>Start building <ArrowRightLeft size={14}/></button></div></header>
       <section className="hero"><span className="eyebrow"><Sparkles size={13}/> Free • private • browser-first</span><h1>The <span>tiny tools</span> behind big launches.</h1><p>A fast utility belt for indie hackers, designers and developers. Convert, inspect, generate and validate the little things that normally break your flow.</p><div className="hero-stats"><div className="hero-stat"><strong>{tools.length}</strong><span>ready-to-use tools</span></div><div className="hero-stat"><strong>0 uploads</strong><span>your data stays local</span></div><div className="hero-stat"><strong>1 workspace</strong><span>everything you need, together</span></div></div></section>
