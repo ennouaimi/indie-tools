@@ -1,0 +1,6 @@
+.color-tabs{display:flex;gap:0;flex-wrap:wrap;margin:0 0 18px;border:1px solid var(--line-strong);width:max-content;max-width:100%;background:rgba(255,255,255,.1)}
+.color-tabs button{border:0;border-right:1px solid var(--line-strong);background:transparent;color:var(--ink-soft);padding:9px 13px;font-size:10px}
+.color-tabs button:last-child{border-right:0}
+.color-tabs button:hover{background:var(--paper-2);color:var(--ink)}
+.color-tabs button.active{background:var(--ink);color:var(--paper)}
+@media(max-width:680px){.color-tabs{display:grid;grid-template-columns:1fr 1fr;width:100%}.color-tabs button{border-bottom:1px solid var(--line-strong)}.color-tabs button:nth-child(2n){border-right:0}.color-tabs button:nth-last-child(-n+2){border-bottom:0}}
