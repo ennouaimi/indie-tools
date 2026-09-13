@@ -5,12 +5,9 @@ import { ArrowUpRight, Command, Search, Star } from 'lucide-react';
 import { categories, tools, type ToolCategory } from '../lib/tool-catalog';
 
 const categoryDescriptions: Record<ToolCategory, string> = {
-  Design: 'Color, visual and asset utilities for product work.',
+  Design: 'Color and visual utilities for product work.',
   Developer: 'Fast helpers for the repetitive parts of development.',
-  Web: 'SEO, sharing and website utilities.',
-  API: 'Small tools for inspecting and shaping API workflows.',
-  Data: 'Convert, format and generate structured data.',
-  'Indie Hacker': 'Simple calculators for running a small SaaS.',
+  Web: 'Small utilities for websites and content.',
 };
 
 export default function Home() {
@@ -74,16 +71,16 @@ export default function Home() {
           <section className="directory-hero">
             <span className="eyebrow">Open source · privacy-first · no account</span>
             <h1>Useful tools for <span>people who build.</span></h1>
-            <p>Design, developer, web, API, data and SaaS utilities in one focused toolbox. Most tools run entirely in your browser.</p>
+            <p>Every tool shown here is available now. No placeholders, no “coming soon” cards.</p>
             <div className="directory-search-wrap">
               <Search size={18} />
-              <input id="tool-search" value={query} onChange={event => setQuery(event.target.value)} placeholder="Search JSON, JWT, MRR, colors…" />
+              <input id="tool-search" value={query} onChange={event => setQuery(event.target.value)} placeholder="Search JSON, JWT, colors, timezone…" />
               <kbd><Command size={12}/> K</kbd>
             </div>
             <div className="directory-stats">
-              <span><strong>{tools.length}</strong> tools</span>
-              <span><strong>{tools.filter(tool => tool.status === 'available').length}</strong> ready now</span>
-              <span><strong>{categories.length}</strong> categories</span>
+              <span><strong>{tools.length}</strong> working tools</span>
+              <span><strong>{categories.length}</strong> active categories</span>
+              <span><strong>100%</strong> available</span>
             </div>
           </section>
 
@@ -96,7 +93,7 @@ export default function Home() {
 
             {favorites.length > 0 && activeCategory === 'All' && !query && (
               <section className="tool-section">
-                <div className="section-heading"><div><span className="section-kicker">Pinned</span><h2>Favorites</h2></div><span>{favorites.length}</span></div>
+                <div className="section-heading"><div><span className="section-kicker">Pinned</span><h2>Favorites</h2></div><span>{tools.filter(tool => favorites.includes(tool.id)).length}</span></div>
                 <div className="tool-grid">
                   {tools.filter(tool => favorites.includes(tool.id)).map(tool => <ToolCard key={tool.id} tool={tool} favorite onFavorite={() => toggleFavorite(tool.id)} />)}
                 </div>
@@ -126,17 +123,18 @@ export default function Home() {
 }
 
 function ToolCard({ tool, favorite, onFavorite }: { tool: (typeof tools)[number]; favorite: boolean; onFavorite: () => void }) {
-  const href = tool.status === 'available' ? `/workbench#${tool.workbenchId || tool.id}` : undefined;
-  const card = (
-    <div className="directory-card-body">
-      <div className="directory-card-top">
-        <span className={`status-dot ${tool.status}`}>{tool.status === 'available' ? 'Ready' : 'Roadmap'}</span>
-        <button className={`favorite-btn ${favorite ? 'active' : ''}`} onClick={event => { event.preventDefault(); event.stopPropagation(); onFavorite(); }} aria-label="Toggle favorite"><Star size={15} fill={favorite ? 'currentColor' : 'none'} /></button>
+  const href = `/workbench#${tool.workbenchId}`;
+  return (
+    <Link className="directory-card" href={href}>
+      <div className="directory-card-body">
+        <div className="directory-card-top">
+          <span className="status-dot available">Ready</span>
+          <button className={`favorite-btn ${favorite ? 'active' : ''}`} onClick={event => { event.preventDefault(); event.stopPropagation(); onFavorite(); }} aria-label="Toggle favorite"><Star size={15} fill={favorite ? 'currentColor' : 'none'} /></button>
+        </div>
+        <h3>{tool.name}</h3>
+        <p>{tool.description}</p>
+        <div className="directory-card-footer"><span>{tool.category}</span><ArrowUpRight size={16}/></div>
       </div>
-      <h3>{tool.name}</h3>
-      <p>{tool.description}</p>
-      <div className="directory-card-footer"><span>{tool.category}</span>{href ? <ArrowUpRight size={16}/> : <span>soon</span>}</div>
-    </div>
+    </Link>
   );
-  return href ? <Link className="directory-card" href={href}>{card}</Link> : <div className="directory-card planned">{card}</div>;
 }
