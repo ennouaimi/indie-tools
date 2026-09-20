@@ -1,109 +1,117 @@
+<div align="center">
+
 # indieTools
 
-A focused collection of practical browser-based tools for developers, designers and indie hackers.
+### The tiny tools behind big launches.
 
-**Fast utilities. One place. No unnecessary workflow.**
+A focused collection of fast, privacy-friendly browser utilities for indie hackers, designers and developers.  
+Convert, inspect, generate and validate the little things that normally break your flow.
 
-<p align="center">
-  <img src="./assets/preview.png" alt="indieTools — tiny tools behind big launches" width="100%" />
-</p>
+<br />
 
-indieTools brings together the small tools you repeatedly need while building and shipping products: formatting data, generating identifiers, working with colors, converting dates and timezones, inspecting tokens, transforming text and more.
+<img src="./assets/preview.png" alt="indieTools — tiny tools behind big launches" width="100%" />
 
-## Tools
+</div>
+
+---
+
+## ✦ Why indieTools?
+
+**indieTools** puts the small utilities you repeatedly need while building and shipping products in one focused workspace.
+
+| | |
+| --- | --- |
+| ⚡ **Fast** | Open a tool and get the result instantly |
+| 🔒 **Private by design** | Tools run locally in your browser whenever possible |
+| 📦 **No uploads** | Your data doesn't need to leave your device for core utilities |
+| 🧰 **One toolbox** | Design, developer, web, API and data utilities together |
+| 🚫 **No signup** | Start using the tools immediately |
+| 🎯 **Focused** | Each tool does one small job well |
+
+## ✦ Tools
 
 ### Design
 
-- **Color Studio** — color picker, HEX/RGB/HSL conversion, palette generation, gradients and WCAG contrast checking
+**Color Studio** — pick colors, convert HEX/RGB/HSL, generate palettes and gradients, and check WCAG contrast.
 
 ### Developer
 
-- **JSON Formatter** — format, validate and minify JSON
-- **Base64** — encode and decode Base64
-- **URL Encoder** — encode and decode URL components
-- **UUID Generator** — generate UUID v4 identifiers
-- **Timestamp Converter** — convert Unix timestamps to readable dates
-- **Timezone Converter** — convert dates and times between IANA timezones
+**JSON Formatter** — format, validate and minify JSON.  
+**Base64** — encode and decode Base64.  
+**URL Encoder** — encode and decode URL components.  
+**UUID Generator** — generate UUID v4 identifiers.  
+**Timestamp Converter** — convert Unix timestamps to readable dates.  
+**Timezone Converter** — convert dates and times between IANA timezones.
 
 ### Text
 
-- **Slug Generator** — generate clean, SEO-friendly slugs
-- **Case Converter** — camelCase, PascalCase, snake_case and kebab-case
-- **Text Analyzer** — word count, character count, sentences and estimated reading time
-- **Lorem Ipsum** — generate placeholder copy for prototypes and mockups
+**Slug Generator** — generate clean, SEO-friendly slugs.  
+**Case Converter** — switch between camelCase, PascalCase, snake_case and kebab-case.  
+**Text Analyzer** — inspect word count, character count, sentences and estimated reading time.  
+**Lorem Ipsum** — generate placeholder copy for prototypes and mockups.
 
 ### Security
 
-- **Password Generator** — generate strong random passwords
-- **JWT Decoder** — inspect JWT headers and payloads locally in the browser
+**Password Generator** — generate strong random passwords.  
+**JWT Decoder** — inspect JWT headers and payloads locally in the browser.
 
-## Privacy-first utilities
+## ✦ Browser-first & private
 
-The utilities are designed to run directly in the browser whenever possible. Sensitive inputs such as JWTs do not need to be sent to a remote service just to inspect or transform them.
+The core utilities are designed to work directly in the browser. That means inputs such as JSON, tokens, text and colors can be transformed without requiring a backend or an account.
 
-## Tech stack
+> **0 uploads:** for local tools, your input stays in your browser.
 
-- **Next.js 16**
-- **React 19**
-- **TypeScript**
-- **Lucide React**
+## ✦ Tech Stack
+
+Built with **Next.js 16**, **React 19**, **TypeScript** and **Lucide React**.
 
 The project intentionally stays lightweight and does not require a backend for its core utilities.
 
-## Getting started
-
-Requirements:
-
-- Node.js
-- npm
-
-Clone the repository and install dependencies:
+## ✦ Run locally
 
 ```bash
 git clone https://github.com/ennouaimi/indie-tools.git
 cd indie-tools
 npm install
-```
-
-Start the development server:
-
-```bash
 npm run dev
 ```
 
 Then open `http://localhost:3000`.
 
-## Production build
-
-```bash
-npm run build
-npm start
-```
-
-## Project structure
+## ✦ Project structure
 
 ```text
 indie-tools/
+├── components/
+├── lib/
 ├── pages/
 │   ├── _app.tsx
 │   ├── index.tsx
-│   └── saas-tools.tsx
+│   ├── lab.tsx
+│   ├── saas-tools.tsx
+│   └── workbench.tsx
 ├── public/
 ├── styles/
 ├── package.json
 └── tsconfig.json
 ```
 
-## Philosophy
+## ✦ Project philosophy
 
-A lot of development work involves tiny repetitive tasks that are too small to justify installing another application or searching for a different website every time.
+Tiny utility tasks shouldn't require installing another app, creating an account or jumping between a dozen websites.
 
-indieTools keeps those utilities together behind a consistent interface so you can stay focused on building.
+indieTools keeps them together behind one consistent interface so you can stay focused on what you're actually building.
 
-## Contributing
+## ✦ Contributing
 
-Ideas for useful, focused tools are welcome. A good addition should be quick to understand, useful repeatedly, and preferably work entirely client-side.
+Ideas for useful, focused tools are welcome. A good addition should be quick to understand, useful repeatedly and preferably work entirely client-side.
 
 ---
 
+<div align="center">
+
+**Tiny tools. Serious momentum.**
+
 Built for people who ship.
+
+</div>
