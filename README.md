@@ -4,6 +4,10 @@ A focused collection of practical browser-based tools for developers, designers 
 
 **Fast utilities. One place. No unnecessary workflow.**
 
+<p align="center">
+  <img src="./assets/preview.png" alt="indieTools — tiny tools behind big launches" width="100%" />
+</p>
+
 indieTools brings together the small tools you repeatedly need while building and shipping products: formatting data, generating identifiers, working with colors, converting dates and timezones, inspecting tokens, transforming text and more.
 
 ## Tools
